@@ -1,0 +1,53 @@
+{
+  "name": "cost-tool",
+  "version": "1.0.0",
+  "description": "Tool tính chi phí dự án - Team",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win --x64",
+    "build:mac": "electron-builder --mac",
+    "build:all": "electron-builder --win --mac --x64"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.team.costtool",
+    "productName": "Chi Phí Dự Án",
+    "icon": "src/icon",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "src/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "src/icon.icns",
+      "category": "public.app-category.business"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "installerLanguages": [
+        "vi_VN",
+        "en_US"
+      ],
+      "language": "1066"
+    },
+    "files": [
+      "src/**/*",
+      "node_modules/**/*"
+    ]
+  }
+}

@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'">
+  <title>Chi Phí Dự Án</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f7f7f6;
+      --bg3: #f1f0ec;
+      --text: #1a1a1a;
+      --text2: #666;
+      --text3: #aaa;
+      --border: rgba(0, 0, 0, 0.1);
+      --border2: rgba(0, 0, 0, 0.2);
+      --blue: #185FA5;
+      --blue-bg: #E6F1FB;
+      --blue-text: #0C447C;
+      --green: #3B6D11;
+      --green-bg: #EAF3DE;
+      --amber: #854F0B;
+      --amber-bg: #FAEEDA;
+      --coral: #993C1D;
+      --coral-bg: #FAECE7;
+      --red: #A32D2D;
+      --r: 8px;
+      --rl: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg3);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-app-region: no-drag;
+    }
+
+    /* Topbar */
+    .topbar {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 0 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 50px;
+      -webkit-app-region: drag;
+      user-select: none;
+    }
+
+    .topbar * {
+      -webkit-app-region: no-drag;
+    }
+
+    .app-title {
+      font-size: 15px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ccc;
+      flex-shrink: 0;
+    }
+
+    .dot.ok {
+      background: #4ade80;
+    }
+
+    .dot.err {
+      background: #f87171;
+    }
+
+    .status-txt {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    /* Layout */
+    .main {
+      display: flex;
+      height: calc(100vh - 50px);
+    }
+
+    .sidebar {
+      width: 300px;
+      min-width: 260px;
+      border-right: 0.5px solid var(--border);
+      background: var(--bg);
+      overflow-y: auto;
+      padding: 1rem;
+    }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem;
+    }
+
+    /* Sidebar form */
+    .stitle {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 10px;
+    }
+
+    .field {
+      margin-bottom: 10px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--text2);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--r);
+      background: var(--bg2);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(24, 95, 165, .12);
+    }
+
+    .pct-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pct-row input[type=range] {
+      flex: 1;
+    }
+
+    .pct-row input[type=number] {
+      width: 58px;
+      text-align: right;
+      padding: 5px 6px;
+    }
+
+    .pct-unit {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .profit-box {
+      background: var(--bg2);
+      border-radius: var(--r);
+      padding: 10px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .profit-box .lbl {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .profit-box .val {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .warn-txt {
+      font-size: 11px;
+      color: var(--red);
+      margin-bottom: 8px;
+      display: none;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    button {
+      padding: 7px 14px;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--r);
+      background: transparent;
+      color: var(--text);
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: background .15s;
+    }
+
+    button:hover {
+      background: var(--bg2);
+    }
+
+    button.primary {
+      background: var(--blue);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    button.primary:hover {
+      opacity: .88;
+    }
+
+    button.sm {
+      font-size: 12px;
+      padding: 4px 10px;
+    }
+
+    .save-flash {
+      font-size: 12px;
+      color: var(--green);
+      opacity: 0;
+      transition: opacity .3s;
+      align-self: center;
+    }
+
+    /* Config panel */
+    .cfg-panel {
+      background: var(--bg2);
+      border-radius: var(--r);
+      padding: 12px;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .cfg-panel.show {
+      display: block;
+    }
+
+    .cfg-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .cfg-field label {
+      font-size: 12px;
+      color: var(--text2);
+      min-width: 60px;
+    }
+
+    .cfg-field input {
+      flex: 1;
+      padding: 6px 8px;
+      border: 0.5px solid var(--border2);
+      border-radius: var(--r);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    /* Summary */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .metric {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px;
+    }
+
+    .metric .ml {
+      font-size: 11px;
+      color: var(--text2);
+      margin-bottom: 4px;
+    }
+
+    .metric .mv {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .m-blue .mv {
+      color: var(--blue);
+    }
+
+    .m-amber .mv {
+      color: var(--amber);
+    }
+
+    .m-coral .mv {
+      color: var(--coral);
+    }
+
+    .m-green .mv {
+      color: var(--green);
+    }
+
+    /* Table */
+    .card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--rl);
+      padding: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .tbl-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text2);
+      padding: 6px 8px;
+      border-bottom: 0.5px solid var(--border);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 9px 8px;
+      border-bottom: 0.5px solid var(--border);
+      vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--bg2);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: var(--blue-bg);
+      color: var(--blue-text);
+      font-weight: 500;
+    }
+
+    .pos {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .neg {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .act-btn {
+      background: none;
+      border: 0.5px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 3px 8px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .act-btn:hover {
+      background: var(--bg2);
+    }
+
+    .del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 3px 7px;
+      font-size: 14px;
+      color: var(--text3);
+    }
+
+    .del-btn:hover {
+      color: var(--red);
+    }
+
+    .empty-row {
+      text-align: center;
+      padding: 2.5rem;
+      color: var(--text3);
+    }
+
+    /* Loading */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .2);
+      z-index: 99;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid rgba(0, 0, 0, .15);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <img src="apislogo.webp" alt="Logo" style="height: 32px; width: auto; margin-right: 10px; -webkit-app-region: no-drag;">
+    <div class="app-title">Chi Phí Dự Án</div>
+    <div class="dot" id="dot"></div>
+    <span class="status-txt" id="status-txt">Đang kiểm tra...</span>
+    <button class="sm" onclick="toggleCfg()">Cài đặt</button>
+  </div>
+
+  <div class="main">
+    <!-- SIDEBAR: Form -->
+    <div class="sidebar">
+
+      <div class="cfg-panel" id="cfg-panel">
+        <div class="stitle">Kết nối VPS</div>
+        <div class="cfg-field">
+          <label>API URL</label>
+          <input type="text" id="cfg-url" placeholder="http://IP:3001">
+        </div>
+        <div class="cfg-field">
+          <label>API Key</label>
+          <input type="password" id="cfg-key" placeholder="team-secret-key">
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button class="primary sm" onclick="saveConfig()">Lưu</button>
+          <button class="sm" onclick="testConn()">Test kết nối</button>
+        </div>
+      </div>
+
+      <div class="stitle" id="form-label">Thêm dự án</div>
+
+      <div class="field">
+        <label>Tên dự án *</label>
+        <input type="text" id="f-name" placeholder="VD: Website ABC">
+      </div>
+      <div class="field">
+        <label>Người deal</label>
+        <input type="text" id="f-dealer" placeholder="Tên thành viên">
+      </div>
+      <div class="field">
+        <label>Giá trị hợp đồng (₫)</label>
+        <input type="number" id="f-rev" value="100000000" min="0" step="1000000">
+      </div>
+      <div class="field">
+        <label>Hoa hồng người deal</label>
+        <div class="pct-row">
+          <input type="range" id="f-cR" min="0" max="30" step="0.5" value="5" oninput="rs('c')">
+          <input type="number" id="f-cN" value="5" min="0" max="100" step="0.5" oninput="rn('c')">
+          <span class="pct-unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Chi phí làm dự án</label>
+        <div class="pct-row">
+          <input type="range" id="f-pR" min="0" max="80" step="0.5" value="50" oninput="rs('p')">
+          <input type="number" id="f-pN" value="50" min="0" max="100" step="0.5" oninput="rn('p')">
+          <span class="pct-unit">%</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Chi phí dự trù phát sinh</label>
+        <div class="pct-row">
+          <input type="range" id="f-dR" min="0" max="30" step="0.5" value="10" oninput="rs('d')">
+          <input type="number" id="f-dN" value="10" min="0" max="100" step="0.5" oninput="rn('d')">
+          <span class="pct-unit">%</span>
+        </div>
+      </div>
+
+      <div class="profit-box">
+        <span class="lbl">Lợi nhuận ròng</span>
+        <span class="val" id="f-profit" style="color:var(--green)">35%</span>
+      </div>
+      <p class="warn-txt" id="f-warn">Tổng chi phí vượt 100%!</p>
+
+      <div class="btn-row">
+        <button class="primary" id="save-btn" onclick="saveProject()">Lưu dự án</button>
+        <button id="cancel-btn" onclick="resetForm()" style="display:none">Huỷ</button>
+        <span class="save-flash" id="flash">Đã lưu</span>
+      </div>
+    </div>
+
+    <!-- CONTENT: Summary + Table -->
+    <div class="content">
+
+      <div class="summary">
+        <div class="metric m-blue">
+          <div class="ml">Tổng hợp đồng</div>
+          <div class="mv" id="s-total">—</div>
+        </div>
+        <div class="metric m-amber">
+          <div class="ml">Tổng chi phí</div>
+          <div class="mv" id="s-cost">—</div>
+        </div>
+        <div class="metric m-coral">
+          <div class="ml">Tổng dự trù</div>
+          <div class="mv" id="s-cont">—</div>
+        </div>
+        <div class="metric m-green">
+          <div class="ml">Tổng lợi nhuận</div>
+          <div class="mv" id="s-profit">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div class="stitle" style="margin:0">Danh sách dự án</div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="proj-count" style="font-size:12px;color:var(--text3)"></span>
+            <button class="sm" onclick="load()">Làm mới</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:20%">Tên dự án</th>
+                <th style="width:13%">Người deal</th>
+                <th style="width:16%">Hợp đồng</th>
+                <th style="width:13%">Hoa hồng</th>
+                <th style="width:12%">Chi phí</th>
+                <th style="width:11%">Dự trù</th>
+                <th style="width:11%">Lợi nhuận</th>
+                <th style="width:8%"></th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <script>
+    let API_URL = '', API_KEY = '', projects = [], editingId = null;
+
+    // Load config từ electron-store
+    async function initConfig() {
+      if (window.electronAPI) {
+        const cfg = await window.electronAPI.getConfig();
+        API_URL = cfg.apiUrl || 'https://103.165.144.67:33785';
+        API_KEY = cfg.apiKey || '123456';
+      }
+      document.getElementById('cfg-url').value = API_URL;
+      document.getElementById('cfg-key').value = API_KEY;
+      if (API_URL && API_KEY) load();
+      else showCfg();
+    }
+
+    function toggleCfg() {
+      const p = document.getElementById('cfg-panel');
+      p.classList.toggle('show');
+      if (p.classList.contains('show')) {
+        document.getElementById('cfg-url').value = API_URL;
+        document.getElementById('cfg-key').value = API_KEY;
+      }
+    }
+    function showCfg() {
+      document.getElementById('cfg-panel').classList.add('show');
+      document.getElementById('cfg-url').value = API_URL;
+      document.getElementById('cfg-key').value = API_KEY;
+    }
+
+    async function saveConfig() {
+      API_URL = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
+      API_KEY = document.getElementById('cfg-key').value.trim();
+      if (window.electronAPI) await window.electronAPI.setConfig({ apiUrl: API_URL, apiKey: API_KEY });
+      document.getElementById('cfg-panel').classList.remove('show');
+      load();
+    }
+
+    async function testConn() {
+      const url = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
+      const key = document.getElementById('cfg-key').value.trim();
+      try {
+        const res = await window.electronAPI.apiRequest({ method: 'GET', path: '/api/health', apiUrl: url, apiKey: key });
+        alert(res.data.ok ? '✓ Kết nối thành công!' : 'Server phản hồi nhưng lỗi.');
+      } catch (e) { alert('Không kết nối được: ' + e); }
+    }
+
+    // API helpers — dùng IPC qua main process để tránh CORS
+    async function api(method, path, body) {
+      if (!API_URL) throw new Error('Chưa cài đặt server URL');
+      const res = await window.electronAPI.apiRequest({ method, path, apiUrl: API_URL, apiKey: API_KEY, body });
+      if (!res.ok) throw new Error(res.data.error || 'Lỗi ' + res.status);
+      return res.data;
+    }
+
+    async function load() {
+      if (!API_URL) return;
+      setLoading(true);
+      try {
+        projects = await api('GET', '/api/projects');
+        renderTable(); renderSummary(); setStatus(true);
+      } catch (e) { setStatus(false, e.message); }
+      finally { setLoading(false); }
+    }
+
+    async function saveProject() {
+      const name = document.getElementById('f-name').value.trim();
+      if (!name) { document.getElementById('f-name').focus(); return; }
+      const body = {
+        name,
+        dealer: document.getElementById('f-dealer').value.trim(),
+        rev: parseFloat(document.getElementById('f-rev').value) || 0,
+        cPct: parseFloat(document.getElementById('f-cN').value) || 0,
+        pPct: parseFloat(document.getElementById('f-pN').value) || 0,
+        dPct: parseFloat(document.getElementById('f-dN').value) || 0,
+      };
+      setLoading(true);
+      try {
+        if (editingId) await api('PUT', '/api/projects/' + editingId, body);
+        else await api('POST', '/api/projects', body);
+        await load(); flash(); resetForm();
+      } catch (e) { alert('Lỗi: ' + e.message); }
+      finally { setLoading(false); }
+    }
+
+    function editProject(id) {
+      const p = projects.find(x => x.id === id); if (!p) return;
+      editingId = id;
+      document.getElementById('f-name').value = p.name;
+      document.getElementById('f-dealer').value = p.dealer || '';
+      document.getElementById('f-rev').value = p.rev;
+      [['c', p.cPct], ['p', p.pPct], ['d', p.dPct]].forEach(([k, v]) => {
+        document.getElementById('f-' + k + 'N').value = v;
+        document.getElementById('f-' + k + 'R').value = v;
+      });
+      updateProfit();
+      document.getElementById('form-label').textContent = 'Chỉnh sửa dự án';
+      document.getElementById('save-btn').textContent = 'Cập nhật';
+      document.getElementById('cancel-btn').style.display = '';
+    }
+
+    async function deleteProject(id) {
+      if (!confirm('Xoá dự án này?')) return;
+      setLoading(true);
+      try { await api('DELETE', '/api/projects/' + id); if (editingId === id) resetForm(); await load(); }
+      catch (e) { alert('Lỗi: ' + e.message); }
+      finally { setLoading(false); }
+    }
+
+    function resetForm() {
+      editingId = null;
+      document.getElementById('f-name').value = '';
+      document.getElementById('f-dealer').value = '';
+      document.getElementById('f-rev').value = 100000000;
+      [['c', 5], ['p', 50], ['d', 10]].forEach(([k, v]) => {
+        document.getElementById('f-' + k + 'N').value = v;
+        document.getElementById('f-' + k + 'R').value = v;
+      });
+      updateProfit();
+      document.getElementById('form-label').textContent = 'Thêm dự án';
+      document.getElementById('save-btn').textContent = 'Lưu dự án';
+      document.getElementById('cancel-btn').style.display = 'none';
+    }
+
+    function renderTable() {
+      const tb = document.getElementById('tbody');
+      document.getElementById('proj-count').textContent = projects.length + ' dự án';
+      if (!projects.length) {
+        tb.innerHTML = '<tr><td colspan="8" class="empty-row">Chưa có dự án nào</td></tr>'; return;
+      }
+      tb.innerHTML = projects.map(p => {
+        const cPct = p.cPct || 0, pPct = p.pPct || 0, dPct = p.dPct || 0;
+        const profPct = p.profPct !== undefined ? p.profPct : (100 - cPct - pPct - dPct);
+        const comm = p.rev * cPct / 100, cost = p.rev * pPct / 100, cont = p.rev * dPct / 100, profit = p.rev * profPct / 100;
+        return `<tr>
+      <td title="${esc(p.name)}" style="font-weight:600">${esc(p.name)}</td>
+      <td>${p.dealer ? '<span class="badge">' + esc(p.dealer) + '</span>' : '<span style="color:var(--text3)">—</span>'}</td>
+      <td>${fmt(p.rev)} ₫</td>
+      <td>${fmt(comm)} ₫<br><small style="color:var(--text3)">${cPct}%</small></td>
+      <td>${fmt(cost)} ₫<br><small style="color:var(--text3)">${pPct}%</small></td>
+      <td>${fmt(cont)} ₫<br><small style="color:var(--text3)">${dPct}%</small></td>
+      <td class="${profit >= 0 ? 'pos' : 'neg'}">${fmt(profit)} ₫<br><small>${profPct.toFixed(1)}%</small></td>
+      <td style="white-space:nowrap;text-align:right">
+        <button class="act-btn" onclick="editProject('${p.id}')">Sửa</button>
+        <button class="del-btn" onclick="deleteProject('${p.id}')">✕</button>
+      </td>
+    </tr>`;
+      }).join('');
+    }
+
+    function renderSummary() {
+      if (!projects.length) {
+        ['s-total', 's-cost', 's-cont', 's-profit'].forEach(id => document.getElementById(id).textContent = '—'); return;
+      }
+      const sum = fn => projects.reduce((a, p) => a + fn(p), 0);
+      document.getElementById('s-total').textContent = fmt(sum(p => p.rev)) + ' ₫';
+      document.getElementById('s-cost').textContent = fmt(sum(p => p.rev * p.pPct / 100)) + ' ₫';
+      document.getElementById('s-cont').textContent = fmt(sum(p => p.rev * p.dPct / 100)) + ' ₫';
+      const profit = sum(p => p.rev * p.profPct / 100);
+      const el = document.getElementById('s-profit');
+      el.textContent = fmt(profit) + ' ₫';
+      el.style.color = profit < 0 ? 'var(--red)' : '';
+    }
+
+    function rs(k) { document.getElementById('f-' + k + 'N').value = document.getElementById('f-' + k + 'R').value; updateProfit(); }
+    function rn(k) { let v = parseFloat(document.getElementById('f-' + k + 'N').value) || 0; v = Math.min(100, Math.max(0, v)); document.getElementById('f-' + k + 'R').value = v; updateProfit(); }
+    function updateProfit() {
+      const c = parseFloat(document.getElementById('f-cN').value) || 0;
+      const p = parseFloat(document.getElementById('f-pN').value) || 0;
+      const d = parseFloat(document.getElementById('f-dN').value) || 0;
+      const prof = parseFloat((100 - c - p - d).toFixed(2));
+      const el = document.getElementById('f-profit');
+      el.textContent = prof.toFixed(1) + '%';
+      el.style.color = prof < 0 ? 'var(--red)' : 'var(--green)';
+      document.getElementById('f-warn').style.display = prof < 0 ? 'block' : 'none';
+    }
+    function fmt(n) { const a = Math.abs(n); if (a >= 1e9) return (n / 1e9).toFixed(2) + ' tỷ'; if (a >= 1e6) return (n / 1e6).toFixed(1) + ' tr'; return n.toLocaleString('vi-VN'); }
+    function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    function setStatus(ok, msg) { document.getElementById('dot').className = 'dot ' + (ok ? 'ok' : 'err'); document.getElementById('status-txt').textContent = ok ? 'Đã kết nối VPS' : (msg || 'Mất kết nối'); }
+    function setLoading(on) { document.getElementById('overlay').classList.toggle('show', on); }
+    function flash() { const el = document.getElementById('flash'); el.style.opacity = '1'; setTimeout(() => el.style.opacity = '0', 2000); }
+
+    // Auto refresh 30s
+    setInterval(() => { if (API_URL && API_KEY) load(); }, 30000);
+    initConfig();
+  </script>
+</body>
+
+</html>
