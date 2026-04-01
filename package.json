@@ -19,6 +19,7 @@
   "build": {
     "appId": "com.team.costtool",
     "productName": "Chi Phí Dự Án",
+    "publish": null,
     "icon": "src/icon",
     "win": {
       "target": [
