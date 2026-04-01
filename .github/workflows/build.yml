@@ -5,6 +5,9 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -14,9 +17,11 @@ jobs:
         with:
           node-version: 20
       - run: npm install
-      - run: npm run build:win
+      - name: Build Windows
+        run: npm run build:win
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build
@@ -30,9 +35,11 @@ jobs:
         with:
           node-version: 20
       - run: npm install
-      - run: npm run build:mac
+      - name: Build Mac
+        run: npm run build:mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_IDENTITY_AUTO_DISCOVERY: false
       - uses: actions/upload-artifact@v4
         with:
           name: mac-build
